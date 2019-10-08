@@ -52,23 +52,70 @@ namespace PolygonEditor
         }
         WriteableBitmap bitmap;
 
-        public void RenderBitmap()
+        public WriteableBitmap EditingBitmap
         {
-            if (Points.Count < 3) return;
+            get
+            {
+                return editingBitmap;
+            }
+            set
+            {
+                editingBitmap = value;
+                OnPropertyChanged(nameof(EditingBitmap));
+            }
+        }
+        WriteableBitmap editingBitmap;
+
+        public Color Color
+        {
+            get
+            {
+                return color;
+                
+            }
+            set
+            {
+                if (color == value) return;
+                color = value;
+                OnPropertyChanged(nameof(Color));
+            }
+        }
+        Color color = Color.FromArgb(255, 255, 0, 0);
+
+        public void RenderBitmap(bool isCreating = false)
+        {
+            if (Points.Count < 2) return;
             WriteableBitmap wb = new WriteableBitmap((int)Boundries.Width, (int)Boundries.Height, 96, 96, PixelFormats.Bgra32, null);
             for(int i = 0; i<Points.Count;i++)
             {
                 if(i<Points.Count - 1)
                 {
-                    wb.DrawLine((int)Points[i].X, (int)Points[i].Y, (int)Points[i + 1].X, (int)Points[i + 1].Y, Color.FromArgb(255, 0, 255, 0));
+                    wb.DrawLine((int)Points[i].X, (int)Points[i].Y, (int)Points[i + 1].X, (int)Points[i + 1].Y, Color);
                 }
-                else
+                else if(i == Points.Count - 1)
                 {
-                    wb.DrawLine((int)Points[i].X, (int)Points[i].Y, (int)Points[0].X, (int)Points[0].Y, Color.FromArgb(255, 0, 255, 0));
-
+                    if (!isCreating)
+                    {
+                        wb.DrawLine((int)Points[i].X, (int)Points[i].Y, (int)Points[0].X, (int)Points[0].Y, Color);
+                    }
                 }
             }
             Bitmap = wb;
+        }
+
+        public void RenderEditingBitmap(Point? mousePosition)
+        {
+            if(mousePosition == null)
+            {
+                Bitmap = null;
+                return; 
+            }
+            WriteableBitmap wb = new WriteableBitmap((int)Boundries.Width, (int)Boundries.Height, 96, 96, PixelFormats.Bgra32, null);
+            var mouseP = mousePosition.Value;
+
+            wb.DrawLine((int)Points[Points.Count - 1].X, (int)Points[Points.Count - 1].Y, (int)mouseP.X, (int)mouseP.Y, Color);
+
+            EditingBitmap = wb;
         }
     }
 

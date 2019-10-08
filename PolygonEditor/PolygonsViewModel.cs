@@ -4,11 +4,14 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
 
 namespace PolygonEditor
 {
     public class PolygonsViewModel:Observable
     {
+
         public ObservableCollection<Polygon> Polygons
         {
             get
@@ -17,6 +20,55 @@ namespace PolygonEditor
             }
         }
         ObservableCollection<Polygon> polygons;
+
+        public bool IsCreating
+        {
+            get
+            {
+                return isCreating;
+            }
+            set
+            {
+                if (isCreating == value) return;
+                isCreating = value;
+                OnPropertyChanged(nameof(IsCreating));
+            }
+        }
+        bool isCreating;
+
+        public Polygon SelectedPolygon
+        {
+            get
+            {
+                return selectedPolygon;
+            }
+            set
+            {
+                if (selectedPolygon == value) return;
+                selectedPolygon = value;
+                OnPropertyChanged(nameof(SelectedPolygon));
+
+            }
+        }
+        Polygon selectedPolygon;
+
+        public void CreateNewPolygon(object arg)
+        {
+            IsCreating = true;
+            var poly = new Polygon();          
+            poly.Boundries = new Rect(0, 0, BitmapWidth, BitmapHeight);
+            Polygons.Add(poly);
+            SelectedPolygon = poly;
+        }
+
+        public ICommand CreateNewPolygonCommand
+        {
+            get
+            {
+                return createNewPolygonCommand ?? (createNewPolygonCommand = new CustomCommand((x) => CreateNewPolygon(x)));
+            }
+        }
+        ICommand createNewPolygonCommand;
 
         public int BitmapWidth
         {

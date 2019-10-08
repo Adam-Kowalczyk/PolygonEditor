@@ -28,18 +28,44 @@ namespace PolygonEditor
             
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+
+        private void DrawArea_MouseDown(object sender, MouseButtonEventArgs e)
         {
             var vm = DataContext as PolygonsViewModel;
-            var poly = new Polygon();
-            poly.Boundries = new Rect(0, 0, vm.BitmapWidth, vm.BitmapHeight);
-            poly.Points.Add(new Point(30, 45));
-            poly.Points.Add(new Point(156, 45));
-            poly.Points.Add(new Point(100, 145));
-            poly.Points.Add(new Point(300, 300));
-            poly.Points.Add(new Point(221, 123));
-            poly.RenderBitmap();
-            vm.Polygons.Add(poly);
+            var drawArea = sender as ItemsControl;
+            if (vm.IsCreating)
+            {
+                var pos = e.GetPosition(drawArea);
+                int x = (int)(pos.X / drawArea.ActualWidth * vm.BitmapWidth);
+                int y = (int)(pos.Y / drawArea.ActualHeight * vm.BitmapHeight);
+
+                if (vm.SelectedPolygon.Points.Count > 3 && PointsHelpers.Distance(vm.SelectedPolygon.Points[0].X, vm.SelectedPolygon.Points[0].Y, x, y) <= 5)
+                {
+                    vm.IsCreating = false;
+                    vm.SelectedPolygon.RenderBitmap();
+                    vm.SelectedPolygon.EditingBitmap = null;
+                }
+                else
+                {
+                    vm.SelectedPolygon.Points.Add(new Point(x, y));
+                    vm.SelectedPolygon.RenderBitmap(true);
+                }
+            }
+        }
+
+        private void DrawArea_MouseMove(object sender, MouseEventArgs e)
+        {
+            var vm = DataContext as PolygonsViewModel;
+            var drawArea = sender as ItemsControl;
+            if (vm.IsCreating)
+            {
+                var pos = e.GetPosition(drawArea);
+                int x = (int)(pos.X / drawArea.ActualWidth * vm.BitmapWidth);
+                int y = (int)(pos.Y / drawArea.ActualHeight * vm.BitmapHeight);
+
+                if(vm.SelectedPolygon.Points.Count>0)
+                    vm.SelectedPolygon.RenderEditingBitmap(new Point(x,y));
+            }
         }
     }
 }

@@ -6,7 +6,11 @@
         xmlns:local="clr-namespace:PolygonEditor"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid Background="AliceBlue">
+    <Window.Resources>
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConv"/>
+    </Window.Resources>
+    <Grid Background="AliceBlue"
+          x:Name="MainGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -14,12 +18,14 @@
         <StackPanel Orientation="Horizontal">
             <Button Content="Test"
                     Margin="2"
-                    Click="Button_Click"/>
+                    Command="{Binding CreateNewPolygonCommand}"/>
         </StackPanel>
         <ItemsControl x:Name="DrawArea"
                       Background="LightBlue"
                       ItemsSource="{Binding Polygons}"
-                      Grid.Row="1">
+                      Grid.Row="1"
+                      MouseDown="DrawArea_MouseDown"
+                      MouseMove="DrawArea_MouseMove">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Grid Background="LightYellow"/>
@@ -27,7 +33,11 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Image Source="{Binding Bitmap}" Stretch="Fill"/>
+                    <Grid>
+                        <Image Source="{Binding Bitmap}" Stretch="Fill"/>
+                        <Image Visibility="{Binding ElementName=MainGrid, Path=IsCreating, Converter={StaticResource BoolToVisibilityConv}}"
+                               Source="{Binding EditingBitmap}" Stretch="Fill"/>
+                    </Grid>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
