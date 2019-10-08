@@ -32,7 +32,12 @@ namespace PolygonEditor
         {
             var vm = DataContext as PolygonsViewModel;
             var poly = new Polygon();
-            poly.Boundries = new Rect(0, 0, DrawArea.ActualWidth, DrawArea.ActualHeight);
+            poly.Boundries = new Rect(0, 0, vm.BitmapWidth, vm.BitmapHeight);
+            poly.Points.Add(new Point(30, 45));
+            poly.Points.Add(new Point(156, 45));
+            poly.Points.Add(new Point(100, 145));
+            poly.Points.Add(new Point(300, 300));
+            poly.Points.Add(new Point(221, 123));
             poly.RenderBitmap();
             vm.Polygons.Add(poly);
         }

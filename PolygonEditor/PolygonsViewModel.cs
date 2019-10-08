@@ -18,6 +18,34 @@ namespace PolygonEditor
         }
         ObservableCollection<Polygon> polygons;
 
+        public int BitmapWidth
+        {
+            get
+            {
+                return bitmapWidth;
+            }
+            set
+            {
+                if (bitmapWidth == value) return;
+                bitmapWidth = value;
+                OnPropertyChanged(nameof(BitmapWidth));
+            }
+        }
+        int bitmapWidth = 640;
 
+        public int BitmapHeight
+        {
+            get
+            {
+                return bitmapHeight;
+            }
+            set
+            {
+                if (bitmapHeight == value) return;
+                bitmapHeight = value;
+                OnPropertyChanged(nameof(BitmapWidth));
+            }
+        }
+        int bitmapHeight = 480;
     }
 }

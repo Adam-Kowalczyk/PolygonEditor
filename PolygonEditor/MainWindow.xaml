@@ -17,17 +17,17 @@
                     Click="Button_Click"/>
         </StackPanel>
         <ItemsControl x:Name="DrawArea"
-                      Background="Aqua"
+                      Background="LightBlue"
                       ItemsSource="{Binding Polygons}"
                       Grid.Row="1">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <Grid Background="LightGray"/>
+                    <Grid Background="LightYellow"/>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Image Source="{Binding Bitmap}"/>
+                    <Image Source="{Binding Bitmap}" Stretch="Fill"/>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
