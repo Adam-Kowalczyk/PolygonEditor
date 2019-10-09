@@ -13,6 +13,8 @@ namespace PolygonEditor
     {
         public static void DrawPixel(this WriteableBitmap wb, int x, int y, Color color)
         {
+            if (x < 0 || x >= wb.PixelWidth) return;
+            if (y < 0 || y >= wb.PixelHeight) return;
             byte blue = color.B;
             byte green = color.G;
             byte red = color.R;
@@ -20,6 +22,28 @@ namespace PolygonEditor
             byte[] colorData = { blue, green, red, alpha };
             Int32Rect rect = new Int32Rect(x, y, 1, 1);
             wb.WritePixels(rect, colorData, 4, 0);
+        }
+
+        public static void DrawPoint(this WriteableBitmap wb, int x, int y, Color color, int size)
+        {
+            byte blue = color.B;
+            byte green = color.G;
+            byte red = color.R;
+            byte alpha = color.A;
+            byte[] colorData = { blue, green, red, alpha };
+
+            for(int i = x - size; i<= x + size;i++)
+            {
+                if (i < 0 || i >= wb.PixelWidth) continue;
+                for(int j = y - size; j<y + size; j++)
+                {
+                    if (j < 0 || j >= wb.PixelHeight) continue;
+                    Int32Rect rect = new Int32Rect(i, j, 1, 1);
+                    wb.WritePixels(rect, colorData, 4, 0);
+                }
+            }
+
+            
         }
 
         //public static void DrawLine(this WriteableBitmap wb, int x1, int y1, int x2, int y2, Color color)

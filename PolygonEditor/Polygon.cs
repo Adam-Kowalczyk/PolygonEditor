@@ -52,20 +52,6 @@ namespace PolygonEditor
         }
         WriteableBitmap bitmap;
 
-        public WriteableBitmap EditingBitmap
-        {
-            get
-            {
-                return editingBitmap;
-            }
-            set
-            {
-                editingBitmap = value;
-                OnPropertyChanged(nameof(EditingBitmap));
-            }
-        }
-        WriteableBitmap editingBitmap;
-
         public Color Color
         {
             get
@@ -81,53 +67,97 @@ namespace PolygonEditor
             }
         }
         Color color = Color.FromArgb(255, 255, 0, 0);
-
-        public void RenderBitmap(bool isCreating = false)
+        
+        public Rect Area
         {
-            if (Points.Count < 2) return;
-            WriteableBitmap wb = new WriteableBitmap((int)Boundries.Width, (int)Boundries.Height, 96, 96, PixelFormats.Bgra32, null);
-            for(int i = 0; i<Points.Count;i++)
+            get
             {
+                if (Points.Count == 0) return new Rect();
+                var top = Points.Min(x => x.Y);
+                var bottom = Points.Max(x => x.Y);
+                var left = Points.Min(x => x.X);
+                var right = Points.Max(x => x.X);
+                return new Rect(new Point(left, top), new Point(right, bottom));
+            }
+        }
+
+        public bool IsHit(Point mousePosition)
+        {
+            var mrg = 5;
+            if(mousePosition.X < Area.Right + mrg && mousePosition.X > Area.Left - mrg
+                && mousePosition.Y > Area.Top - mrg && mousePosition.Y < Area.Bottom + mrg)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public void Move(Point finalPosition, Point startingPosition)
+        {
+            var xDiff = (int)(finalPosition.X - startingPosition.X);
+            var yDiff = (int)(finalPosition.Y - startingPosition.Y);
+            var newPoints = Points.ToList();
+            Points.Clear();
+            for (int i = 0; i < newPoints.Count; i++)
+            {
+                var p = newPoints[i];
+                p.X += xDiff;
+                p.Y += yDiff;
+                Points.Add(p);
+            }
+
+        }
+
+        public void RenderBitmap(bool isCreating = false, Point? mousePosition = null, Point? mouseStartingPosition = null)
+        {
+            if (Points.Count == 0) return;
+            if(Bitmap == null)
+                bitmap = new WriteableBitmap((int)Boundries.Width, (int)Boundries.Height, 96, 96, PixelFormats.Bgra32, null);
+
+            int xDiff = 0;
+            int yDiff = 0;
+
+            if(mouseStartingPosition.HasValue && mousePosition.HasValue)
+            {
+                xDiff = (int)(mousePosition.Value.X - mouseStartingPosition.Value.X);
+                yDiff = (int)(mousePosition.Value.Y - mouseStartingPosition.Value.Y);
+            }
+
+            byte[] pixels1d = new byte[(int)Boundries.Width * (int)Boundries.Height * 4];
+            Int32Rect rect = new Int32Rect(0, 0, (int)Boundries.Width, (int)Boundries.Height);
+            int stride = 4 * (int)Boundries.Width;
+            bitmap.WritePixels(rect, pixels1d, stride, 0);
+
+
+            for (int i = 0; i<Points.Count;i++)
+            {
+                bitmap.DrawPoint((int)Points[i].X + xDiff, (int)Points[i].Y + yDiff, Color, 3);
                 if(i<Points.Count - 1)
                 {
-                    wb.DrawLine((int)Points[i].X, (int)Points[i].Y, (int)Points[i + 1].X, (int)Points[i + 1].Y, Color);
+                    
+                    bitmap.DrawLine((int)Points[i].X + xDiff, (int)Points[i].Y + yDiff, (int)Points[i + 1].X + xDiff, (int)Points[i + 1].Y + yDiff, Color);
                 }
                 else if(i == Points.Count - 1)
                 {
                     if (!isCreating)
                     {
-                        wb.DrawLine((int)Points[i].X, (int)Points[i].Y, (int)Points[0].X, (int)Points[0].Y, Color);
+                        bitmap.DrawLine((int)Points[i].X + xDiff, (int)Points[i].Y + yDiff, (int)Points[0].X + xDiff, (int)Points[0].Y + yDiff, Color);
+                    }
+                    else
+                    {
+                        if(mousePosition!= null)
+                        {
+                            var mouseP = mousePosition.Value;
+
+                            bitmap.DrawLine((int)Points[Points.Count - 1].X, (int)Points[Points.Count - 1].Y, (int)mouseP.X, (int)mouseP.Y, Color);
+                            bitmap.DrawPoint((int)mouseP.X, (int)mouseP.Y, Color, 3);
+                        }
                     }
                 }
             }
-            Bitmap = wb;
+            Bitmap = bitmap;
         }
 
-        public void RenderEditingBitmap(Point? mousePosition)
-        {
-            if(mousePosition == null)
-            {
-                Bitmap = null;
-                return; 
-            }
-            WriteableBitmap wb = new WriteableBitmap((int)Boundries.Width, (int)Boundries.Height, 96, 96, PixelFormats.Bgra32, null);
-            var mouseP = mousePosition.Value;
-
-            wb.DrawLine((int)Points[Points.Count - 1].X, (int)Points[Points.Count - 1].Y, (int)mouseP.X, (int)mouseP.Y, Color);
-
-            EditingBitmap = wb;
-        }
     }
 
-    //int x = 200;
-    //int y = 200;
-    //int nr = 72;
-    //double length = 100;
-    //double del = 2 * Math.PI / nr;
-    //for (int i =0; i< nr; i++)
-    //{
-    //    int x2 = (int)(x + Math.Sin(del * i) * length);
-    //    int y2 = (int)(y - Math.Cos(del * i) * length);
-    //    wb.DrawLine(x, y, x2, y2, Color.FromRgb(255, 0, 0));
-    //}
 }

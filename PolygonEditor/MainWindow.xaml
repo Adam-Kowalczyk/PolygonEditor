@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PolygonEditor"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow">
     <Window.Resources>
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConv"/>
     </Window.Resources>
@@ -16,30 +16,35 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal">
-            <Button Content="Test"
+            <Button Content="Create new"
                     Margin="2"
                     Command="{Binding CreateNewPolygonCommand}"/>
         </StackPanel>
-        <ItemsControl x:Name="DrawArea"
+        <Viewbox Stretch="Uniform"
+                 Grid.Row="1">
+            <ItemsControl x:Name="DrawArea"
                       Background="LightBlue"
                       ItemsSource="{Binding Polygons}"
-                      Grid.Row="1"
                       MouseDown="DrawArea_MouseDown"
-                      MouseMove="DrawArea_MouseMove">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Grid Background="LightYellow"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Image Source="{Binding Bitmap}" Stretch="Fill"/>
-                        <Image Visibility="{Binding ElementName=MainGrid, Path=IsCreating, Converter={StaticResource BoolToVisibilityConv}}"
-                               Source="{Binding EditingBitmap}" Stretch="Fill"/>
-                    </Grid>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+                      MouseMove="DrawArea_MouseMove"
+                      MouseLeftButtonUp="DrawArea_MouseLeftButtonUp"
+                      Height="600"
+                      Width="800">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid Background="LightYellow"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+
+                            <Image Source="{Binding Bitmap}"
+                               Stretch="Fill"/>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
     </Grid>
 </Window>

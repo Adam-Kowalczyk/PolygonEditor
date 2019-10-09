@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace PolygonEditor
 {
@@ -54,10 +55,16 @@ namespace PolygonEditor
 
         public void CreateNewPolygon(object arg)
         {
+            Random rnd = new Random();
+            byte[] colors = new byte[3];
+            rnd.NextBytes(colors);
+
             IsCreating = true;
-            var poly = new Polygon();          
-            poly.Boundries = new Rect(0, 0, BitmapWidth, BitmapHeight);
-            Polygons.Add(poly);
+
+            var poly = new Polygon();
+            poly.Color = Color.FromRgb(colors[0],colors[1], colors[2]);
+            poly.Name = "Poly" + Polygons.Count.ToString();
+            AddPolygon(poly);
             SelectedPolygon = poly;
         }
 
@@ -99,5 +106,19 @@ namespace PolygonEditor
             }
         }
         int bitmapHeight = 480;
+
+        public void AddPolygon(Polygon poly, int zIndex = -1)
+        {
+            poly.Boundries = new Rect(0, 0, BitmapWidth, BitmapHeight);
+            if(zIndex >= 0)
+            {
+                Polygons.Insert(zIndex, poly);
+            }
+            else
+            {
+                Polygons.Add(poly);
+            }
+            
+        }
     }
 }
