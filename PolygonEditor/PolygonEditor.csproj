@@ -57,6 +57,7 @@
     </ApplicationDefinition>
     <Compile Include="CustomCommand.cs" />
     <Compile Include="CustomConverters.cs" />
+    <Compile Include="DragablePoint.cs" />
     <Compile Include="PointsHelpers.cs" />
     <Compile Include="WriteableBitmapExtensions.cs" />
     <Page Include="MainWindow.xaml">

@@ -29,14 +29,14 @@ namespace PolygonEditor
 
         public Rect Boundries { get; set; }
 
-        public ObservableCollection<Point> Points
+        public ObservableCollection<DragablePoint> Points
         {
             get
             {
-                return points ?? (points = new ObservableCollection<Point>());
+                return points ?? (points = new ObservableCollection<DragablePoint>());
             }
         }
-        ObservableCollection<Point> points;
+        ObservableCollection<DragablePoint> points;
 
         public WriteableBitmap Bitmap
         {
@@ -96,17 +96,23 @@ namespace PolygonEditor
         {
             var xDiff = (int)(finalPosition.X - startingPosition.X);
             var yDiff = (int)(finalPosition.Y - startingPosition.Y);
-            var newPoints = Points.ToList();
-            Points.Clear();
-            for (int i = 0; i < newPoints.Count; i++)
+            foreach(var p in Points)
             {
-                var p = newPoints[i];
                 p.X += xDiff;
                 p.Y += yDiff;
-                Points.Add(p);
             }
 
         }
+
+        Int32Rect Cleaner
+        {
+            get
+            {
+                return !cleaner.IsEmpty ? cleaner : cleaner = new Int32Rect(0, 0, (int)Boundries.Width, (int)Boundries.Height);
+            }
+        }
+        Int32Rect cleaner = new Int32Rect();
+
 
         public void RenderBitmap(bool isCreating = false, Point? mousePosition = null, Point? mouseStartingPosition = null)
         {
@@ -124,9 +130,8 @@ namespace PolygonEditor
             }
 
             byte[] pixels1d = new byte[(int)Boundries.Width * (int)Boundries.Height * 4];
-            Int32Rect rect = new Int32Rect(0, 0, (int)Boundries.Width, (int)Boundries.Height);
             int stride = 4 * (int)Boundries.Width;
-            bitmap.WritePixels(rect, pixels1d, stride, 0);
+            bitmap.WritePixels(Cleaner, pixels1d, stride, 0);
 
 
             for (int i = 0; i<Points.Count;i++)

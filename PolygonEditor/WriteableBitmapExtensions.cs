@@ -22,6 +22,7 @@ namespace PolygonEditor
             byte[] colorData = { blue, green, red, alpha };
             Int32Rect rect = new Int32Rect(x, y, 1, 1);
             wb.WritePixels(rect, colorData, 4, 0);
+
         }
 
         public static void DrawPoint(this WriteableBitmap wb, int x, int y, Color color, int size)

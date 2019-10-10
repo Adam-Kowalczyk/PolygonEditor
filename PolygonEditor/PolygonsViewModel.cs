@@ -37,6 +37,36 @@ namespace PolygonEditor
         }
         bool isCreating;
 
+        public bool IsMoving
+        {
+            get
+            {
+                return isMoving;
+            }
+            set
+            {
+                if (isMoving == value) return;
+                isMoving = value;
+                OnPropertyChanged(nameof(IsMoving));
+            }
+        }
+        bool isMoving;
+
+        public bool IsPointDraged
+        {
+            get
+            {
+                return isPointDraged;
+            }
+            set
+            {
+                if (isPointDraged == value) return;
+                isPointDraged = value;
+                OnPropertyChanged(nameof(isPointDraged));
+            }
+        }
+        bool isPointDraged;
+
         public Polygon SelectedPolygon
         {
             get
@@ -55,6 +85,7 @@ namespace PolygonEditor
 
         public void CreateNewPolygon(object arg)
         {
+            if (IsCreating) return;
             Random rnd = new Random();
             byte[] colors = new byte[3];
             rnd.NextBytes(colors);

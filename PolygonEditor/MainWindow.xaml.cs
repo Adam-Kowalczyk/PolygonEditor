@@ -52,7 +52,7 @@ namespace PolygonEditor
                 }
                 else
                 {
-                    vm.SelectedPolygon.Points.Add(new Point(x, y));
+                    vm.SelectedPolygon.Points.Add(new DragablePoint(x, y));
                     vm.SelectedPolygon.RenderBitmap(true);
                 }
             }
@@ -72,19 +72,35 @@ namespace PolygonEditor
                     Debug.WriteLine("Selected: null");
                 else
                     Debug.WriteLine("Selected:" + clicked.Name);
-
-                if(vm.SelectedPolygon != null)
+                if (vm.SelectedPolygon != null)
                 {
-                    if(e.LeftButton == MouseButtonState.Pressed)
+
+                    if (e.LeftButton == MouseButtonState.Pressed)
                     {
+                        foreach (var pnt in vm.SelectedPolygon.Points)
+                        {
+                            if (pnt.IsHit(x, y, 6))
+                            {
+                                selectedPoint = pnt;
+                                dragStartPoint = new Point(x, y);
+                                vm.IsPointDraged = true;
+                                return;
+                            }
+                        }
+
+
                         dragStartPoint = new Point(x, y);
+                        vm.IsMoving = true;
                     }
                 }
+
             }
         }
 
+
         Point? dragStartPoint = null;
-        
+
+        DragablePoint selectedPoint = null;
 
 
         private void DrawArea_MouseMove(object sender, MouseEventArgs e)
@@ -107,24 +123,36 @@ namespace PolygonEditor
                     {
                         var xDiff = (int)(x - dragStartPoint.Value.X);
                         var yDiff = (int)(y - dragStartPoint.Value.Y);
-                        var area = vm.SelectedPolygon.Area;
-                        if(area.Left + xDiff < 0)
+                        if (vm.IsMoving)
                         {
-                            x = (int)(- area.Left + dragStartPoint.Value.X);
+                            var area = vm.SelectedPolygon.Area;
+                            if (area.Left + xDiff < 0)
+                            {
+                                x = (int)(-area.Left + dragStartPoint.Value.X);
+                            }
+                            if (area.Right + xDiff >= vm.SelectedPolygon.Boundries.Width)
+                            {
+                                x = (int)(vm.SelectedPolygon.Boundries.Width - area.Right + dragStartPoint.Value.X);
+                            }
+                            if (area.Top + yDiff < 0)
+                            {
+                                y = (int)(-area.Top + dragStartPoint.Value.Y);
+                            }
+                            if (area.Bottom + yDiff >= vm.SelectedPolygon.Boundries.Height)
+                            {
+                                y = (int)(vm.SelectedPolygon.Boundries.Height - area.Bottom + dragStartPoint.Value.Y);
+                            }
+                            vm.SelectedPolygon.RenderBitmap(mousePosition: new Point(x, y), mouseStartingPosition: dragStartPoint);
                         }
-                        if (area.Right + xDiff >= vm.SelectedPolygon.Boundries.Width)
+                        else if(vm.IsPointDraged)
                         {
-                            x = (int)(vm.SelectedPolygon.Boundries.Width - area.Right + dragStartPoint.Value.X);
+                            if(selectedPoint != null)
+                            {
+                                selectedPoint.X = x;
+                                selectedPoint.Y = y;
+                            }
+                            vm.SelectedPolygon.RenderBitmap();
                         }
-                        if (area.Top + yDiff < 0)
-                        {
-                            y = (int)(-area.Top + dragStartPoint.Value.Y);
-                        }
-                        if (area.Bottom + yDiff >= vm.SelectedPolygon.Boundries.Height)
-                        {
-                            y = (int)(vm.SelectedPolygon.Boundries.Height - area.Bottom + dragStartPoint.Value.Y);
-                        }
-                        vm.SelectedPolygon.RenderBitmap(mousePosition:new Point(x,y), mouseStartingPosition: dragStartPoint);
                         
                     }
                 }
@@ -148,25 +176,37 @@ namespace PolygonEditor
                 {
                     var xDiff = (int)(x - dragStartPoint.Value.X);
                     var yDiff = (int)(y - dragStartPoint.Value.Y);
-                    var area = vm.SelectedPolygon.Area;
-                    if (area.Left + xDiff < 0)
+                    if (vm.IsMoving)
                     {
-                        x = (int)(-area.Left + dragStartPoint.Value.X);
+                        var area = vm.SelectedPolygon.Area;
+                        if (area.Left + xDiff < 0)
+                        {
+                            x = (int)(-area.Left + dragStartPoint.Value.X);
+                        }
+                        if (area.Right + xDiff >= vm.SelectedPolygon.Boundries.Width)
+                        {
+                            x = (int)(vm.SelectedPolygon.Boundries.Width - area.Right + dragStartPoint.Value.X);
+                        }
+                        if (area.Top + yDiff < 0)
+                        {
+                            y = (int)(-area.Top + dragStartPoint.Value.Y);
+                        }
+                        if (area.Bottom + yDiff >= vm.SelectedPolygon.Boundries.Height)
+                        {
+                            y = (int)(vm.SelectedPolygon.Boundries.Height - area.Bottom + dragStartPoint.Value.Y);
+                        }
+                        vm.SelectedPolygon.Move(new Point(x, y), dragStartPoint.Value);
+                        vm.IsMoving = false;
+                       
                     }
-                    if (area.Right + xDiff >= vm.SelectedPolygon.Boundries.Width)
+                    else if (vm.IsPointDraged)
                     {
-                        x = (int)(vm.SelectedPolygon.Boundries.Width - area.Right + dragStartPoint.Value.X);
+                        selectedPoint = null;
+                        vm.IsPointDraged = false;
                     }
-                    if (area.Top + yDiff < 0)
-                    {
-                        y = (int)(-area.Top + dragStartPoint.Value.Y);
-                    }
-                    if (area.Bottom + yDiff >= vm.SelectedPolygon.Boundries.Height)
-                    {
-                        y = (int)(vm.SelectedPolygon.Boundries.Height - area.Bottom + dragStartPoint.Value.Y);
-                    }
-                    vm.SelectedPolygon.Move(new Point(x, y), dragStartPoint.Value);
+
                     vm.SelectedPolygon.RenderBitmap();
+                    dragStartPoint = null;
                 }
             }
         }
