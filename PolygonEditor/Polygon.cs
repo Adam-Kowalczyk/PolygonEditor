@@ -38,6 +38,44 @@ namespace PolygonEditor
         }
         ObservableCollection<DragablePoint> points;
 
+        public List<Line> Lines
+        {
+            get
+            {
+                return lines ?? (lines = new List<Line>());
+            }
+        }
+        List<Line> lines = null;
+
+        public void AddPoint(DragablePoint point, int index = -1) // index is Line in which we insert point
+        {
+            if(Points.Count == 0)
+            {
+                Points.Add(point);
+                return;
+            }
+            if(index < 0)
+            {
+                if(Lines.Count > 0)
+                {
+                    Lines.Last().Second = point;
+                }
+                else
+                {
+                    Lines.Add(new Line(Points.First(), point));
+                }
+                Lines.Add(new Line(point, Points.First()));
+                Points.Add(point);
+                return;
+            }
+            else
+            {
+                var oldEnd = Lines[index].Second;
+                Lines[index].Second = point;
+                Lines.Insert(index + 1, new Line(point, oldEnd));
+            }
+        }
+
         public WriteableBitmap Bitmap
         {
             get
@@ -81,6 +119,7 @@ namespace PolygonEditor
             }
         }
 
+
         public bool IsHit(Point mousePosition)
         {
             var mrg = 5;
@@ -113,21 +152,20 @@ namespace PolygonEditor
         }
         Int32Rect cleaner = new Int32Rect();
 
+        public void SetOffestToAllPoints(int xDiff, int yDiff)
+        {
+            foreach(var point in Points)
+            {
+                point.XOffset = xDiff;
+                point.YOffset = yDiff;
+            }
+        }
 
         public void RenderBitmap(bool isCreating = false, Point? mousePosition = null, Point? mouseStartingPosition = null)
         {
             if (Points.Count == 0) return;
             if(Bitmap == null)
                 bitmap = new WriteableBitmap((int)Boundries.Width, (int)Boundries.Height, 96, 96, PixelFormats.Bgra32, null);
-
-            int xDiff = 0;
-            int yDiff = 0;
-
-            if(mouseStartingPosition.HasValue && mousePosition.HasValue)
-            {
-                xDiff = (int)(mousePosition.Value.X - mouseStartingPosition.Value.X);
-                yDiff = (int)(mousePosition.Value.Y - mouseStartingPosition.Value.Y);
-            }
 
             byte[] pixels1d = new byte[(int)Boundries.Width * (int)Boundries.Height * 4];
             int stride = 4 * (int)Boundries.Width;
@@ -136,17 +174,17 @@ namespace PolygonEditor
 
             for (int i = 0; i<Points.Count;i++)
             {
-                bitmap.DrawPoint((int)Points[i].X + xDiff, (int)Points[i].Y + yDiff, Color, 3);
+                bitmap.DrawPoint(Points[i].X + Points[i].XOffset, (int)Points[i].Y + Points[i].YOffset, Color, 3);
                 if(i<Points.Count - 1)
                 {
                     
-                    bitmap.DrawLine((int)Points[i].X + xDiff, (int)Points[i].Y + yDiff, (int)Points[i + 1].X + xDiff, (int)Points[i + 1].Y + yDiff, Color);
+                    bitmap.DrawLine((int)Points[i].X + Points[i].XOffset, (int)Points[i].Y + Points[i].YOffset, (int)Points[i + 1].X + Points[i + 1].XOffset, (int)Points[i + 1].Y + Points[i + 1].YOffset, Color);
                 }
                 else if(i == Points.Count - 1)
                 {
                     if (!isCreating)
                     {
-                        bitmap.DrawLine((int)Points[i].X + xDiff, (int)Points[i].Y + yDiff, (int)Points[0].X + xDiff, (int)Points[0].Y + yDiff, Color);
+                        bitmap.DrawLine((int)Points[i].X + Points[i].XOffset, (int)Points[i].Y + Points[i].YOffset, (int)Points[0].X + Points[0].XOffset, (int)Points[0].Y + Points[0].YOffset, Color);
                     }
                     else
                     {

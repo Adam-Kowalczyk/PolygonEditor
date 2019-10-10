@@ -25,7 +25,7 @@
             <ItemsControl x:Name="DrawArea"
                       Background="LightBlue"
                       ItemsSource="{Binding Polygons}"
-                      MouseDown="DrawArea_MouseDown"
+                      MouseLeftButtonDown="DrawArea_LeftMouseDown"
                       MouseMove="DrawArea_MouseMove"
                       MouseLeftButtonUp="DrawArea_MouseLeftButtonUp"
                       Height="600"

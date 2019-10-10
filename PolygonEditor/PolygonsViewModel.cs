@@ -52,20 +52,35 @@ namespace PolygonEditor
         }
         bool isMoving;
 
-        public bool IsPointDraged
+        public bool IsPointDragged
         {
             get
             {
-                return isPointDraged;
+                return isPointDragged;
             }
             set
             {
-                if (isPointDraged == value) return;
-                isPointDraged = value;
-                OnPropertyChanged(nameof(isPointDraged));
+                if (isPointDragged == value) return;
+                isPointDragged = value;
+                OnPropertyChanged(nameof(IsPointDragged));
             }
         }
-        bool isPointDraged;
+        bool isPointDragged;
+
+        public bool IsLineDragged
+        {
+            get
+            {
+                return isLineDragged;
+            }
+            set
+            {
+                if (isLineDragged == value) return;
+                isLineDragged = value;
+                OnPropertyChanged(nameof(IsLineDragged));
+            }
+        }
+        bool isLineDragged;
 
         public Polygon SelectedPolygon
         {
