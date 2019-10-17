@@ -73,6 +73,7 @@ namespace PolygonEditor
                 var oldEnd = Lines[index].Second;
                 Lines[index].Second = point;
                 Lines.Insert(index + 1, new Line(point, oldEnd));
+                Points.Insert(index + 1, point);
             }
         }
 
@@ -199,6 +200,24 @@ namespace PolygonEditor
                 }
             }
             Bitmap = bitmap;
+        }
+
+        public void DeletePoint(DragablePoint point)
+        {
+            var pos = Points.IndexOf(point);
+            if (pos == -1) return;
+
+            var atBeginning = Lines.Where(x => x.First == point).FirstOrDefault();
+            var atEnding = Lines.Where(x => x.Second == point).FirstOrDefault();
+
+            if (atBeginning != null && atEnding != null)
+            {
+                DragablePoint toJoin = atBeginning.Second;
+                atEnding.Second = toJoin;
+                Lines.Remove(atBeginning);
+            }
+
+            Points.Remove(point);
         }
 
     }

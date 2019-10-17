@@ -123,6 +123,54 @@ namespace PolygonEditor
         }
         ICommand createNewPolygonCommand;
 
+        public void DeletePoint(object arg)
+        {
+            var point = arg as DragablePoint;
+            if (point == null) return;
+            if (SelectedPolygon == null) return;
+
+            if (SelectedPolygon.Points.Count <= 3)
+            {
+                var toDel = SelectedPolygon;
+                Polygons.Remove(toDel);
+                SelectedPolygon = null;
+            }
+            else
+            {
+                SelectedPolygon.DeletePoint(point);
+                SelectedPolygon.RenderBitmap();
+            }
+        }
+
+        public ICommand DeletePointCommand
+        {
+            get
+            {
+                return deletePointCommand ?? (deletePointCommand = new CustomCommand((x) => DeletePoint(x)));
+            }
+        }
+        ICommand deletePointCommand;
+
+        public void AddMiddlePoint(object arg)
+        {
+            var line = arg as Line;
+            if (line == null) return;
+            if (SelectedPolygon == null) return;
+            var index = SelectedPolygon.Lines.IndexOf(line);
+            var toAdd = new DragablePoint((line.First.X + line.Second.X) / 2, (line.First.Y + line.Second.Y) / 2);
+            SelectedPolygon.AddPoint(toAdd, index);
+            SelectedPolygon.RenderBitmap();
+        }
+
+        public ICommand AddMiddlePointCommand
+        {
+            get
+            {
+                return addMiddlePointCommand ?? (addMiddlePointCommand = new CustomCommand((x) => AddMiddlePoint(x)));
+            }
+        }
+        ICommand addMiddlePointCommand;
+
         public int BitmapWidth
         {
             get

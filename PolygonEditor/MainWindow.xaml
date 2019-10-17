@@ -26,6 +26,7 @@
                       Background="LightBlue"
                       ItemsSource="{Binding Polygons}"
                       MouseLeftButtonDown="DrawArea_LeftMouseDown"
+                          MouseRightButtonDown="DrawArea_MouseRightButtonDown"
                       MouseMove="DrawArea_MouseMove"
                       MouseLeftButtonUp="DrawArea_MouseLeftButtonUp"
                       Height="600"

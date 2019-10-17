@@ -88,29 +88,14 @@ namespace PolygonEditor
                             }
                         }
 
-                        for (int i = 0; i < vm.SelectedPolygon.Points.Count; i++)
+                        foreach( var line in vm.SelectedPolygon.Lines)
                         {
-                            if (i == vm.SelectedPolygon.Points.Count - 1)
+                            if(line.IsHit(x,y, 6))
                             {
-                                if (PointsHelpers.DistanceToLine(vm.SelectedPolygon.Points[i].X, vm.SelectedPolygon.Points[i].Y,
-                                    vm.SelectedPolygon.Points[0].X, vm.SelectedPolygon.Points[0].Y, x, y) <= 6)
-                                {
-                                    dragStartPoint = new Point(x, y);
-                                    selectedLine = (vm.SelectedPolygon.Points[i], vm.SelectedPolygon.Points[0]);
-                                    vm.IsLineDragged = true;
-                                    return;
-                                }
-                            }
-                            else
-                            {
-                                if (PointsHelpers.DistanceToLine(vm.SelectedPolygon.Points[i].X, vm.SelectedPolygon.Points[i].Y,
-                                        vm.SelectedPolygon.Points[i + 1].X, vm.SelectedPolygon.Points[i + 1].Y, x, y) <= 6)
-                                {
-                                    dragStartPoint = new Point(x, y);
-                                    selectedLine = (vm.SelectedPolygon.Points[i], vm.SelectedPolygon.Points[i + 1]);
-                                    vm.IsLineDragged = true;
-                                    return;
-                                }
+                                dragStartPoint = new Point(x, y);
+                                selectedLine = (line.First, line.Second);
+                                vm.IsLineDragged = true;
+                                return;
                             }
                         }
 
@@ -265,5 +250,72 @@ namespace PolygonEditor
                 }
             }
         }
+
+        private void DrawArea_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var vm = DataContext as PolygonsViewModel;
+            var drawArea = sender as ItemsControl;
+            var pos = e.GetPosition(drawArea);
+            int x = (int)(pos.X / drawArea.ActualWidth * vm.BitmapWidth);
+            int y = (int)(pos.Y / drawArea.ActualHeight * vm.BitmapHeight);
+            if (vm.IsCreating || vm.IsMoving || vm.IsLineDragged || vm.IsPointDragged) return;
+
+            if (drawArea.ContextMenu != null)
+            {
+                drawArea.ContextMenu.IsOpen = false;
+            }
+
+            Polygon clicked = null;
+            foreach (var poly in vm.Polygons.Reverse())
+            {
+                if (poly.IsHit(new Point(x, y)))
+                {
+                    clicked = poly;
+                    break;
+                }
+            }
+            vm.SelectedPolygon = clicked;
+
+            drawArea.ContextMenu = null;
+            if (vm.SelectedPolygon != null)
+            {
+
+                foreach (var pnt in vm.SelectedPolygon.Points)
+                {
+                    if (pnt.IsHit(x, y, 6))
+                    {
+                        var ctxMenu = new ContextMenu();
+                        drawArea.ContextMenu = ctxMenu;
+                        var deleteItem = new MenuItem();
+                        deleteItem.Header = "Delete point";
+                        deleteItem.Command = vm.DeletePointCommand;
+                        deleteItem.CommandParameter = pnt;
+                        ctxMenu.Items.Add(deleteItem);
+                        ctxMenu.IsOpen = true;
+                        return;
+                    }
+                }
+
+                foreach (var line in vm.SelectedPolygon.Lines)
+                {
+                    if (line.IsHit(x, y, 6))
+                    {
+                        var ctxMenu = new ContextMenu();
+                        drawArea.ContextMenu = ctxMenu;
+                        var addPoint = new MenuItem();
+                        addPoint.Header = "Add middle point";
+                        addPoint.Command = vm.AddMiddlePointCommand;
+                        addPoint.CommandParameter = line;
+                        ctxMenu.Items.Add(addPoint);
+                        ctxMenu.IsOpen = true;
+                        return;
+                    }
+                }
+
+
+
+            }
+        }
+
     }
 }

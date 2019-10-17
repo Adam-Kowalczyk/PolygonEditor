@@ -16,5 +16,11 @@ namespace PolygonEditor
         public DragablePoint First { get; set; }
 
         public DragablePoint Second { get; set; }
+
+        public bool IsHit(int x, int y, int margin)
+        {
+            return PointsHelpers.DistanceToLine(First.X, First.Y,
+                                        Second.X, Second.Y, x, y) <= margin;
+        }
     }
 }
