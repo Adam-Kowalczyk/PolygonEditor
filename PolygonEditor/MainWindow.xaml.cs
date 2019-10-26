@@ -77,14 +77,17 @@ namespace PolygonEditor
 
                     if (e.LeftButton == MouseButtonState.Pressed)
                     {
-                        foreach (var pnt in vm.SelectedPolygon.Points)
+                        if (!vm.IsAddingRelation)
                         {
-                            if (pnt.IsHit(x, y, 6))
+                            foreach (var pnt in vm.SelectedPolygon.Points)
                             {
-                                selectedPoint = pnt;
-                                dragStartPoint = new Point(x, y);
-                                vm.IsPointDragged = true;
-                                return;
+                                if (pnt.IsHit(x, y, 6))
+                                {
+                                    selectedPoint = pnt;
+                                    dragStartPoint = new Point(x, y);
+                                    vm.IsPointDragged = true;
+                                    return;
+                                }
                             }
                         }
 
@@ -92,10 +95,19 @@ namespace PolygonEditor
                         {
                             if(line.IsHit(x,y, 6))
                             {
-                                dragStartPoint = new Point(x, y);
-                                selectedLine = (line.First, line.Second);
-                                vm.IsLineDragged = true;
-                                return;
+                                if (vm.IsAddingRelation && line.Relation == Relation.NONE)
+                                {
+                                    vm.AddRelationEnd(line);
+                                    
+                                }
+                                else
+                                {
+                                    dragStartPoint = new Point(x, y);
+                                    selectedLine = line;
+                                    lineInitial = ( new DragablePoint(line.First.X, line.First.Y), new DragablePoint(line.Second.X, line.Second.Y));
+                                    vm.IsLineDragged = true;
+                                    return;
+                                }
                             }
                         }
 
@@ -112,8 +124,8 @@ namespace PolygonEditor
         Point? dragStartPoint = null;
 
         DragablePoint selectedPoint = null;
-
-        (DragablePoint, DragablePoint) selectedLine = (null, null);
+        Line selectedLine;
+        (DragablePoint, DragablePoint) lineInitial = (null, null);
 
 
         private void DrawArea_MouseMove(object sender, MouseEventArgs e)
@@ -140,26 +152,9 @@ namespace PolygonEditor
                         if (vm.IsMoving)
                         {
                             double xOff = x - dragStartPoint.Value.X;
-                            double yOff = y - dragStartPoint.Value.Y;
-                            var area = vm.SelectedPolygon.Area;
-                            if (area.Left + xDiff < 0)
-                            {
-                                xOff = -area.Left;
-                            }
-                            if (area.Right + xDiff >= vm.SelectedPolygon.Boundries.Width)
-                            {
-                                xOff = vm.SelectedPolygon.Boundries.Width - area.Right;
-                            }
-                            if (area.Top + yDiff < 0)
-                            {
-                                yOff = -area.Top;
-                            }
-                            if (area.Bottom + yDiff >= vm.SelectedPolygon.Boundries.Height)
-                            {
-                                yOff = vm.SelectedPolygon.Boundries.Height - area.Bottom;
-                            }
+                            double yOff = y - dragStartPoint.Value.Y;                       
                             vm.SelectedPolygon.SetOffestToAllPoints((int)xOff, (int)yOff);
-                            vm.SelectedPolygon.RenderBitmap(mousePosition: dragStartPoint, mouseStartingPosition: dragStartPoint);
+                            vm.SelectedPolygon.RenderBitmap(mousePosition: dragStartPoint);
                         }
                         else if (vm.IsPointDragged)
                         {
@@ -172,12 +167,15 @@ namespace PolygonEditor
                         }
                         else if (vm.IsLineDragged)
                         {
-                            if (selectedLine.Item1 != null && selectedLine.Item2 != null)
+                            if (lineInitial.Item1 != null && lineInitial.Item2 != null && selectedLine!= null)
                             {
-                                selectedLine.Item1.XOffset = xDiff;
-                                selectedLine.Item1.YOffset = yDiff;
-                                selectedLine.Item2.XOffset = xDiff;
-                                selectedLine.Item2.YOffset = yDiff;
+
+                                selectedLine.First.X = lineInitial.Item1.X + x - (int)dragStartPoint.Value.X;
+                                selectedLine.First.Y = lineInitial.Item1.Y + y - (int)dragStartPoint.Value.Y;
+
+                                selectedLine.Second.X = lineInitial.Item2.X + x - (int)dragStartPoint.Value.X;
+                                selectedLine.Second.Y = lineInitial.Item2.Y + y - (int)dragStartPoint.Value.Y;
+
                             }
                             vm.SelectedPolygon.RenderBitmap();
                         }
@@ -205,23 +203,7 @@ namespace PolygonEditor
                     var yDiff = (int)(y - dragStartPoint.Value.Y);
                     if (vm.IsMoving)
                     {
-                        var area = vm.SelectedPolygon.Area;
-                        if (area.Left + xDiff < 0)
-                        {
-                            x = (int)(-area.Left + dragStartPoint.Value.X);
-                        }
-                        if (area.Right + xDiff >= vm.SelectedPolygon.Boundries.Width)
-                        {
-                            x = (int)(vm.SelectedPolygon.Boundries.Width - area.Right + dragStartPoint.Value.X);
-                        }
-                        if (area.Top + yDiff < 0)
-                        {
-                            y = (int)(-area.Top + dragStartPoint.Value.Y);
-                        }
-                        if (area.Bottom + yDiff >= vm.SelectedPolygon.Boundries.Height)
-                        {
-                            y = (int)(vm.SelectedPolygon.Boundries.Height - area.Bottom + dragStartPoint.Value.Y);
-                        }
+                        
                         vm.SelectedPolygon.Move(new Point(x, y), dragStartPoint.Value);
                         vm.IsMoving = false;
 
@@ -233,15 +215,16 @@ namespace PolygonEditor
                     }
                     else if(vm.IsLineDragged)
                     {
-                        if (selectedLine.Item1 != null && selectedLine.Item2 != null)
+                        if (lineInitial.Item1 != null && lineInitial.Item2 != null)
                         {
-                            Debug.WriteLine($"xDiff: {xDiff} yDiff: {yDiff}");
-                            selectedLine.Item1.X += xDiff;
-                            selectedLine.Item1.Y += yDiff;
-                            selectedLine.Item2.X += xDiff;
-                            selectedLine.Item2.Y += yDiff;
+                            //Debug.WriteLine($"xDiff: {xDiff} yDiff: {yDiff}");
+                            //lineInitial.Item1.X += xDiff;
+                            //lineInitial.Item1.Y += yDiff;
+                            //lineInitial.Item2.X += xDiff;
+                            //lineInitial.Item2.Y += yDiff;
                         }
-                        selectedLine = (null, null);
+                        lineInitial = (null, null);
+                        selectedLine = null;
                         vm.IsLineDragged = false;
                     }
                     vm.SelectedPolygon.SetOffestToAllPoints(0, 0);
@@ -258,7 +241,7 @@ namespace PolygonEditor
             var pos = e.GetPosition(drawArea);
             int x = (int)(pos.X / drawArea.ActualWidth * vm.BitmapWidth);
             int y = (int)(pos.Y / drawArea.ActualHeight * vm.BitmapHeight);
-            if (vm.IsCreating || vm.IsMoving || vm.IsLineDragged || vm.IsPointDragged) return;
+            if (vm.IsCreating || vm.IsMoving || vm.IsLineDragged || vm.IsPointDragged || vm.IsAddingRelation) return;
 
             if (drawArea.ContextMenu != null)
             {
@@ -306,7 +289,17 @@ namespace PolygonEditor
                         addPoint.Header = "Add middle point";
                         addPoint.Command = vm.AddMiddlePointCommand;
                         addPoint.CommandParameter = line;
+                        var addRelation = new MenuItem();
+                        addRelation.Header = "Add 'parallel' relation";
+                        addRelation.Command = vm.AddParallelRelationCommand;
+                        addRelation.CommandParameter = line;
+                        var addEqualRelation = new MenuItem();
+                        addEqualRelation.Header = "Add 'equal' relation";
+                        addEqualRelation.Command = vm.AddEqualRelationCommand;
+                        addEqualRelation.CommandParameter = line;
                         ctxMenu.Items.Add(addPoint);
+                        ctxMenu.Items.Add(addRelation);
+                        ctxMenu.Items.Add(addEqualRelation);
                         ctxMenu.IsOpen = true;
                         return;
                     }

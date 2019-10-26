@@ -162,7 +162,7 @@ namespace PolygonEditor
             }
         }
 
-        public void RenderBitmap(bool isCreating = false, Point? mousePosition = null, Point? mouseStartingPosition = null)
+        public void RenderBitmap(bool isCreating = false, Point? mousePosition = null)
         {
             if (Points.Count == 0) return;
             if(Bitmap == null)
@@ -199,6 +199,26 @@ namespace PolygonEditor
                     }
                 }
             }
+            if(!isCreating)
+            {
+                int id = 1;
+                foreach(var line in Lines)
+                {
+                    if(line.Relation!= Relation.NONE)
+                    {
+                        if(line.RelationID == -1 && line.RelatedLine!= null)
+                        {
+                            line.RelationID = id;
+                            line.RelatedLine.RelationID = id;
+                            id++;
+                        }
+
+                        bitmap.DrawRelationBox((line.First.X + line.First.XOffset + line.Second.X + line.Second.XOffset) / 2, (line.First.Y + line.First.YOffset + line.Second.Y + line.Second.YOffset) / 2,
+                            line.Relation ,line.RelationID);
+                        line.RelationID = -1;
+                    }
+                }
+            }
             Bitmap = bitmap;
         }
 
@@ -212,6 +232,8 @@ namespace PolygonEditor
 
             if (atBeginning != null && atEnding != null)
             {
+                atBeginning.RemoveRelation();
+                atEnding.RemoveRelation();
                 DragablePoint toJoin = atBeginning.Second;
                 atEnding.Second = toJoin;
                 Lines.Remove(atBeginning);

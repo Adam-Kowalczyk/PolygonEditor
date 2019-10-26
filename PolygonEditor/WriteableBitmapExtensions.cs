@@ -167,5 +167,76 @@ namespace PolygonEditor
                     wb.DrawLineBresenhamHigh(x1, y1, x2, y2, color);
             }
         }
+
+        public static void DrawRelationBox(this WriteableBitmap wb, int x, int y, Relation rel, int number)
+        {
+            if (rel == Relation.NONE) return;
+            Color borderCol = Color.FromRgb(0, 0, 0);
+            //wb.DrawLine(x, y, x + 10, y, borderCol);
+            //wb.DrawLine(x, y, x, y + 8, borderCol);
+            //wb.DrawLine(x + 10, y, x + 10, y + 8, borderCol);
+            //wb.DrawLine(x, y + 8, x + 10, y + 8, borderCol);
+
+            if(rel == Relation.EQUALS)
+            {
+                wb.DrawLine(x, y, x + 5, y, borderCol);
+                wb.DrawLine(x, y + 1, x + 5, y + 1, borderCol);
+
+                wb.DrawLine(x, y + 4, x + 5, y + 4, borderCol);
+                wb.DrawLine(x, y + 5, x + 5, y + 5, borderCol);
+            }
+
+            if(rel == Relation.PARALLEL)
+            {
+                wb.DrawLine(x, y, x, y + 7, borderCol);
+                wb.DrawLine(x + 1, y, x + 1, y + 7, borderCol);
+
+                wb.DrawLine(x + 4, y, x + 4, y + 7, borderCol);
+                wb.DrawLine(x + 5, y, x + 5, y + 7, borderCol);
+            }
+
+            wb.DrawDigit(x + 8, y, number, borderCol);
+        }
+
+        public static void DrawDigit(this WriteableBitmap wb, int x, int y, int number, Color col)
+        {
+            if(number == 1)
+            {
+                wb.DrawLine(x + 1, y, x + 1, y + 7, col);
+                wb.DrawPixel(x, y + 1, col);
+                wb.DrawPixel(x, y + 7, col);
+                wb.DrawPixel(x + 2, y + 7, col);
+
+
+            }
+            else if( number == 2)
+            {
+                wb.DrawPixel(x, y + 1, col);
+                wb.DrawPixel(x + 1, y, col);
+                wb.DrawPixel(x + 2, y, col);
+                wb.DrawPixel(x + 3, y, col);
+                wb.DrawPixel(x + 4, y + 1, col);
+                wb.DrawPixel(x + 3, y + 2, col);
+                wb.DrawPixel(x + 2, y + 3, col);
+                wb.DrawPixel(x + 1, y + 4, col);
+                wb.DrawPixel(x, y + 5, col);
+                wb.DrawPixel(x, y + 6, col);
+
+                wb.DrawLine(x, y + 6, x + 4, y + 6, col);
+            }
+            else if(number == 3)
+            {
+                wb.DrawLine(x, y, x + 3, y, col);
+                wb.DrawLine(x, y + 3, x + 3, y + 3, col);
+                wb.DrawLine(x, y + 6, x + 3, y + 6, col);
+                wb.DrawPixel(x + 4, y + 1, col);
+                wb.DrawPixel(x + 4, y + 2, col);
+                wb.DrawPixel(x + 4, y + 4, col);
+                wb.DrawPixel(x + 4, y + 5, col);
+
+
+
+            }
+        }
     }
 }
