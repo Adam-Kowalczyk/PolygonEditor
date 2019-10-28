@@ -19,6 +19,14 @@
             <Button Content="Create new"
                     Margin="2"
                     Command="{Binding CreateNewPolygonCommand}"/>
+            <Button Content="Predefined Polygon 1"
+                    Command="{Binding CreatePredefinedPolygonCommand}"
+                    CommandParameter="1"
+                    Margin="2"/>
+            <Button Content="Predefined Polygon 2"
+                    Command="{Binding CreatePredefinedPolygonCommand}"
+                    CommandParameter="2"
+                    Margin="2"/>
         </StackPanel>
         <Viewbox Stretch="Uniform"
                  Grid.Row="1">

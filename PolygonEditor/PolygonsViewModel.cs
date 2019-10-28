@@ -323,7 +323,7 @@ namespace PolygonEditor
         {
             get
             {
-                return deletePointCommand ?? (deletePolygonCommand = new CustomCommand((x) => DeletePolygon(x)));
+                return deletePolygonCommand ?? (deletePolygonCommand = new CustomCommand((x) => DeletePolygon(x)));
             }
         }
         ICommand deletePolygonCommand;
@@ -344,5 +344,60 @@ namespace PolygonEditor
             }
         }
         ICommand deleteRelationCommand;
+
+        public void CreatePredefinedPolygon(object par)
+        {
+            var numString = par as string;
+            if (numString == null) return;
+            int number = int.Parse(numString);
+            Random rnd = new Random();
+            byte[] colors = new byte[3];
+            rnd.NextBytes(colors);
+
+            var poly = new Polygon();
+            if (number == 1)
+            {
+                poly.AddPoint(new DragablePoint(80, 60));
+                poly.AddPoint(new DragablePoint(250, 30));
+                poly.AddPoint(new DragablePoint(200, 150));
+                poly.AddPoint(new DragablePoint(137, 197));
+                poly.AddPoint(new DragablePoint(123, 256));
+                poly.AddPoint(new DragablePoint(68, 200));
+                poly.AddRelation(poly.Lines[0], poly.Lines[2], Relation.PARALLEL);
+                poly.AddRelation(poly.Lines[1], poly.Lines[5], Relation.EQUALS);
+                poly.FixRelations(poly.Points[0]);
+            }
+            else if(number == 2)
+            {
+                poly.AddPoint(new DragablePoint(464, 70));
+                poly.AddPoint(new DragablePoint(521, 267));
+                poly.AddPoint(new DragablePoint(344, 335));
+                poly.AddPoint(new DragablePoint(434, 238));
+                poly.AddPoint(new DragablePoint(400, 100));
+                poly.AddPoint(new DragablePoint(300, 78));
+
+                poly.AddRelation(poly.Lines[0], poly.Lines[3], Relation.PARALLEL);
+                poly.AddRelation(poly.Lines[2], poly.Lines[5], Relation.EQUALS);
+                poly.FixRelations(poly.Points[0]);
+            }
+            else
+            {
+                return;
+            }
+            poly.Color = Color.FromRgb(colors[0], colors[1], colors[2]);
+            poly.Name = "Poly" + Polygons.Count.ToString();
+            poly.Boundries = new Rect(0, 0, BitmapWidth, BitmapHeight);
+            poly.RenderBitmap();
+            AddPolygon(poly);
+        }
+
+        public ICommand CreatePredefinedPolygonCommand
+        {
+            get
+            {
+                return createPredefinedPolygonCommand ?? (createPredefinedPolygonCommand = new CustomCommand((x) => CreatePredefinedPolygon(x)));
+            }
+        }
+        ICommand createPredefinedPolygonCommand;
     }
 }

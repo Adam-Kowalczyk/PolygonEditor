@@ -349,6 +349,15 @@ namespace PolygonEditor
             return true;
         }
 
+        public void AddRelation(Line target1, Line target2, Relation rel)
+        {
+            target1.Relation = rel;
+            target2.Relation = rel;
+            target1.RelatedLine = target2;
+            target2.RelatedLine = target1;
+
+        }
+
 
     }
 
