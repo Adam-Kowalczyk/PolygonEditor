@@ -152,6 +152,7 @@ namespace PolygonEditor
 
         public static void DrawLine(this WriteableBitmap wb, int x1, int y1, int x2, int y2, Color color)
         {
+            wb.DrawPixel(x1, y1, color);
             if(Math.Abs(y2-y1) < Math.Abs(x2-x1))
             {
                 if (x1 > x2)
@@ -200,7 +201,19 @@ namespace PolygonEditor
 
         public static void DrawDigit(this WriteableBitmap wb, int x, int y, int number, Color col)
         {
-            if(number == 1)
+            if(number == -1)
+            {
+                wb.DrawPixel(x, y + 1, col);
+                wb.DrawPixel(x + 1, y, col);
+                wb.DrawPixel(x + 2, y, col);
+                wb.DrawPixel(x + 3, y, col);
+                wb.DrawPixel(x + 4, y + 1, col);
+                wb.DrawPixel(x + 4, y + 2, col);
+                wb.DrawPixel(x + 3, y + 3, col);
+                wb.DrawPixel(x + 2, y + 4, col);
+                wb.DrawPixel(x + 2, y + 6, col);
+            }
+            else if(number == 1)
             {
                 wb.DrawLine(x + 1, y, x + 1, y + 7, col);
                 wb.DrawPixel(x, y + 1, col);
@@ -236,6 +249,22 @@ namespace PolygonEditor
 
 
 
+            }
+            else if(number == 4)
+            {
+                wb.DrawLine(x, y, x, y + 2, col);
+                wb.DrawLine(x + 4, y, x + 4, y + 2, col);
+                wb.DrawLine(x + 1, y + 3, x + 3, y + 3, col);
+                wb.DrawLine(x + 4, y + 4, x + 4, y + 6, col);
+            }
+            else if(number == 5)
+            {
+                wb.DrawLine(x + 1, y, x + 4, y, col);
+                wb.DrawLine(x, y + 1, x, y + 3, col);
+                wb.DrawLine(x + 1, y + 3, x + 3, y + 3, col);
+                wb.DrawPixel(x + 4, y + 4, col);
+                wb.DrawPixel(x + 4, y + 5, col);
+                wb.DrawLine(x, y + 6, x + 3, y + 6, col);
             }
         }
     }

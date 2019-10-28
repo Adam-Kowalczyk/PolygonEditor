@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -213,7 +214,8 @@ namespace PolygonEditor
                             id++;
                         }
 
-                        bitmap.DrawRelationBox((line.First.X + line.First.XOffset + line.Second.X + line.Second.XOffset) / 2, (line.First.Y + line.First.YOffset + line.Second.Y + line.Second.YOffset) / 2,
+                        bitmap.DrawRelationBox((line.First.X + line.First.XOffset + line.Second.X + line.Second.XOffset) / 2,
+                            (line.First.Y + line.First.YOffset + line.Second.Y + line.Second.YOffset) / 2,
                             line.Relation ,line.RelationID);
                         line.RelationID = -1;
                     }
@@ -241,6 +243,112 @@ namespace PolygonEditor
 
             Points.Remove(point);
         }
+
+        public bool FixRelations(Line line)
+        {
+            var atBeginning = Lines.Where(x => x.First == line.Second).FirstOrDefault();
+            var atEnding = Lines.Where(x => x.Second == line.First).FirstOrDefault();
+
+            if (atBeginning == null || atEnding == null) return false;
+
+            if (atBeginning.Relation == Relation.NONE && atEnding.Relation == Relation.NONE) return true;
+
+            if (atBeginning.Relation != Relation.NONE)
+            {
+                FixRelationFromLine(atBeginning, true);
+            }
+
+            if (atEnding.Relation != Relation.NONE)
+            {
+                FixRelationFromLine(atEnding, false);
+            }
+
+            return true;
+        }
+        public bool FixRelations(DragablePoint point)
+        {
+            var atBeginning = Lines.Where(x => x.First == point).FirstOrDefault();
+            var atEnding = Lines.Where(x => x.Second == point).FirstOrDefault();
+
+            if (atBeginning == null || atEnding == null) return false;
+
+            if (atBeginning.Relation == Relation.NONE && atEnding.Relation == Relation.NONE) return true;
+
+            if(atBeginning.Relation != Relation.NONE)
+            {
+                FixRelationFromLine(atBeginning, true);
+            }
+
+            if(atEnding.Relation != Relation.NONE)
+            {
+                FixRelationFromLine(atEnding, false);
+            }
+
+            return true;
+        }
+
+        public bool FixRelationFromLine(Line line, bool fixFirst)
+        {
+            if (line.Relation == Relation.NONE) return true;
+
+            var next = Lines.Where(x => x.First == line.RelatedLine.Second).FirstOrDefault();
+            var prev = Lines.Where(x => x.Second == line.RelatedLine.First).FirstOrDefault();
+
+            if (line.Relation == Relation.EQUALS)
+            {
+                if (Math.Abs(line.Length - line.RelatedLine.Length) < 3) return true;
+                bool changeFirst = fixFirst;
+                if (next.Relation == Relation.NONE)
+                    changeFirst = false;
+                if (prev.Relation == Relation.NONE)
+                    changeFirst = true;
+                line.RelatedLine.SetLength(line.Length, changeFirst);
+
+                Debug.WriteLine($"[E]Ordered: {line.Length}, Set: {line.RelatedLine.Length}");
+
+                if (changeFirst)
+                {
+                    if (prev == line) return true;
+                    FixRelationFromLine(prev, true);
+                } 
+                else
+                {
+                    if (next == line) return true;
+                    FixRelationFromLine(next, false);
+                }
+                
+                    
+                //FixRelationFromLine(next, true);
+                //FixRelationFromLine(prev, false);
+            }
+            else if(line.Relation == Relation.PARALLEL)
+            {
+                if (Math.Abs((line.Angle - line.RelatedLine.Angle)/ line.Angle) < 0.05) return true;
+
+                bool changeFirst = fixFirst;
+                if (next.Relation == Relation.NONE)
+                    changeFirst = false;
+                if (prev.Relation == Relation.NONE)
+                    changeFirst = true;
+                line.RelatedLine.SetAngle(line.Angle, changeFirst);
+
+                Debug.WriteLine($"[P]Ordered: {line.Angle}, Set: {line.RelatedLine.Angle}");
+
+                if (changeFirst)
+                {
+                    if (prev == line) return true;
+                    FixRelationFromLine(prev, true);
+                }
+                else
+                {
+                    if (next == line) return true;
+                    FixRelationFromLine(next, false);
+                }
+            }
+
+            return true;
+        }
+
 
     }
 

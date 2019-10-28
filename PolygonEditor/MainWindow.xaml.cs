@@ -95,9 +95,13 @@ namespace PolygonEditor
                         {
                             if(line.IsHit(x,y, 6))
                             {
-                                if (vm.IsAddingRelation && line.Relation == Relation.NONE)
+                                if (vm.IsAddingRelation)
                                 {
-                                    vm.AddRelationEnd(line);
+                                    if (line.Relation == Relation.NONE)
+                                    {
+                                        vm.AddRelationEnd(line);
+                                        vm.SelectedPolygon.FixRelations(line.Second);
+                                    }
                                     
                                 }
                                 else
@@ -111,9 +115,11 @@ namespace PolygonEditor
                             }
                         }
 
-
-                        dragStartPoint = new Point(x, y);
-                        vm.IsMoving = true;
+                        if (!vm.IsAddingRelation)
+                        {
+                            dragStartPoint = new Point(x, y);
+                            vm.IsMoving = true;
+                        }
                     }
                 }
 
@@ -163,6 +169,7 @@ namespace PolygonEditor
                                 selectedPoint.X = x;
                                 selectedPoint.Y = y;
                             }
+                            vm.SelectedPolygon.FixRelations(selectedPoint);
                             vm.SelectedPolygon.RenderBitmap();
                         }
                         else if (vm.IsLineDragged)
@@ -177,6 +184,7 @@ namespace PolygonEditor
                                 selectedLine.Second.Y = lineInitial.Item2.Y + y - (int)dragStartPoint.Value.Y;
 
                             }
+                            vm.SelectedPolygon.FixRelations(selectedLine);
                             vm.SelectedPolygon.RenderBitmap();
                         }
                     }
@@ -293,19 +301,38 @@ namespace PolygonEditor
                         addRelation.Header = "Add 'parallel' relation";
                         addRelation.Command = vm.AddParallelRelationCommand;
                         addRelation.CommandParameter = line;
+                        addRelation.IsEnabled = line.Relation == Relation.NONE;
                         var addEqualRelation = new MenuItem();
                         addEqualRelation.Header = "Add 'equal' relation";
                         addEqualRelation.Command = vm.AddEqualRelationCommand;
                         addEqualRelation.CommandParameter = line;
+                        addEqualRelation.IsEnabled = line.Relation == Relation.NONE;
                         ctxMenu.Items.Add(addPoint);
                         ctxMenu.Items.Add(addRelation);
                         ctxMenu.Items.Add(addEqualRelation);
+                        if(line.Relation != Relation.NONE)
+                        {
+                            var delRelation = new MenuItem();
+                            delRelation.Header = "Delete relation";
+                            delRelation.Command = vm.DeleteRelationCommand;
+                            delRelation.CommandParameter = line;
+                            ctxMenu.Items.Add(delRelation);
+                        }
                         ctxMenu.IsOpen = true;
                         return;
                     }
+
                 }
 
-
+                drawArea.ContextMenu = null;
+                var contextMenu = new ContextMenu();
+                drawArea.ContextMenu = contextMenu;
+                var deletePoly = new MenuItem();
+                deletePoly.Header = "Delete polygon";
+                deletePoly.Command = vm.DeletePolygonCommand;
+                deletePoly.CommandParameter = vm.SelectedPolygon;
+                contextMenu.Items.Add(deletePoly);
+                contextMenu.IsOpen = true;
 
             }
         }

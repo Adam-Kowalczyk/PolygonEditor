@@ -199,6 +199,8 @@ namespace PolygonEditor
                 relation = Relation.PARALLEL;
             }
             line.Relation = Relation.PARALLEL;
+            if (SelectedPolygon != null)
+                SelectedPolygon.RenderBitmap();
         }
 
         public void AddRelationEnd(Line lin)
@@ -242,7 +244,8 @@ namespace PolygonEditor
                 relation = Relation.EQUALS;
             }
             line.Relation = Relation.EQUALS;
-            
+            if (SelectedPolygon != null)
+                SelectedPolygon.RenderBitmap();
         }
 
         public ICommand AddParallelRelationCommand
@@ -306,5 +309,40 @@ namespace PolygonEditor
             }
             
         }
+
+        public void DeletePolygon(object poly)
+        {
+            var polygg = poly as Polygon;
+            if (polygg == null) return;
+            Polygons.Remove(polygg);
+            SelectedPolygon = null;
+
+        }
+
+        public ICommand DeletePolygonCommand
+        {
+            get
+            {
+                return deletePointCommand ?? (deletePolygonCommand = new CustomCommand((x) => DeletePolygon(x)));
+            }
+        }
+        ICommand deletePolygonCommand;
+
+        public void DeleteRelation(object line)
+        {
+            var line1 = line as Line;
+            line1.RemoveRelation();
+            if (SelectedPolygon != null)
+                SelectedPolygon.RenderBitmap();
+        }
+
+        public ICommand DeleteRelationCommand
+        {
+            get
+            {
+                return deleteRelationCommand ?? (deleteRelationCommand = new CustomCommand((x) => DeleteRelation(x)));
+            }
+        }
+        ICommand deleteRelationCommand;
     }
 }
