@@ -13,3 +13,5 @@ Possible operations:
 - Add "Equal" relation: Click (right-click) on the edge and select "Add 'equal' relation". Then select second edge. Their length will be the same.
 - Add "Parallel" relation: Click (right-click) on the edge and select "Add 'parallel' relation". Then select second edge. They will be parallel to each other.
 - Delete relation: Click (right-click) on the edge with relation and select "Delete relation".
+
+![alt text](/example1.png)
