@@ -292,6 +292,11 @@ namespace PolygonEditor
         {
             if (line.Relation == Relation.NONE) return true;
 
+            if(line.RelatedLine.First.IsBlocked && line.RelatedLine.Second.IsBlocked) // prevent to drag lines that are blocked on both ends
+            {
+                return FixRelationFromLine(line.RelatedLine, fixFirst);
+            }
+
             var next = Lines.Where(x => x.First == line.RelatedLine.Second).FirstOrDefault();
             var prev = Lines.Where(x => x.Second == line.RelatedLine.First).FirstOrDefault();
 
