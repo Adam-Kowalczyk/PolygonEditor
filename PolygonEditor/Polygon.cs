@@ -345,7 +345,6 @@ namespace PolygonEditor
                     changeFirst = false;
                 if (prev.Relation == Relation.NONE)
                     changeFirst = true;
-                line.RelatedLine.SetAngle(line.Angle, changeFirst);
 
                 if (!(line.RelatedLine.First.IsBlocked && line.RelatedLine.Second.IsBlocked))
                 {
@@ -354,6 +353,8 @@ namespace PolygonEditor
                     if (line.RelatedLine.Second.IsBlocked)
                         changeFirst = true;
                 }
+
+                line.RelatedLine.SetAngle(line.Angle, changeFirst);
 
                 Debug.WriteLine($"[P]Ordered: {line.Angle}, Set: {line.RelatedLine.Angle}");
 

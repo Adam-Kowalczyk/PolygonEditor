@@ -103,7 +103,9 @@ namespace PolygonEditor
                                     if (line.Relation == Relation.NONE)
                                     {
                                         vm.AddRelationEnd(line);
-                                        vm.SelectedPolygon.FixRelations(line.Second);
+                                        
+                                        vm.SelectedPolygon.FixRelations(line.Second.IsBlocked ? line.First : line.Second);
+                                        vm.SelectedPolygon.RenderBitmap();
                                     }
                                     
                                 }
