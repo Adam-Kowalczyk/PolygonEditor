@@ -26,7 +26,7 @@ namespace PolygonEditor
 
         }
 
-        public static void DrawPoint(this WriteableBitmap wb, int x, int y, Color color, int size)
+        public static void DrawPoint(this WriteableBitmap wb, int x, int y, Color color, int size, bool isBlocked = false)
         {
             byte blue = color.B;
             byte green = color.G;
@@ -45,7 +45,18 @@ namespace PolygonEditor
                 }
             }
 
-            
+            if (isBlocked)
+            {
+                for (int i = x - size * 2; i <= x + size * 2; i++)
+                {
+                    wb.DrawPixel(i, y, color);
+                }
+                for (int i = y - size * 2; i <= y + size * 2; i++)
+                {
+                    wb.DrawPixel(x, i, color);
+                }
+            }
+
         }
 
         public static void DrawLine(this WriteableBitmap wb, int x1, int y1, int x2, int y2, Color color)

@@ -28,6 +28,8 @@ namespace PolygonEditor
 
         public int YOffset { get; set; } = 0;
 
+        public bool IsBlocked { get; set; } = false;
+
         public Point ToWpfPoint()
         {
             return new Point(X, Y);

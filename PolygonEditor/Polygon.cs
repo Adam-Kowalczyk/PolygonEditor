@@ -176,7 +176,7 @@ namespace PolygonEditor
 
             for (int i = 0; i<Points.Count;i++)
             {
-                bitmap.DrawPoint(Points[i].X + Points[i].XOffset, (int)Points[i].Y + Points[i].YOffset, Color, 3);
+                bitmap.DrawPoint(Points[i].X + Points[i].XOffset, (int)Points[i].Y + Points[i].YOffset, Color, 3, Points[i].IsBlocked);
                 if(i<Points.Count - 1)
                 {
                     
@@ -258,6 +258,7 @@ namespace PolygonEditor
                 FixRelationFromLine(atBeginning, true);
             }
 
+
             if (atEnding.Relation != Relation.NONE)
             {
                 FixRelationFromLine(atEnding, false);
@@ -302,6 +303,15 @@ namespace PolygonEditor
                     changeFirst = false;
                 if (prev.Relation == Relation.NONE)
                     changeFirst = true;
+
+                if (!(line.RelatedLine.First.IsBlocked && line.RelatedLine.Second.IsBlocked))
+                {
+                    if (line.RelatedLine.First.IsBlocked)
+                        changeFirst = false;
+                    if (line.RelatedLine.Second.IsBlocked)
+                        changeFirst = true;
+                }
+
                 line.RelatedLine.SetLength(line.Length, changeFirst);
 
                 Debug.WriteLine($"[E]Ordered: {line.Length}, Set: {line.RelatedLine.Length}");
@@ -332,6 +342,14 @@ namespace PolygonEditor
                     changeFirst = true;
                 line.RelatedLine.SetAngle(line.Angle, changeFirst);
 
+                if (!(line.RelatedLine.First.IsBlocked && line.RelatedLine.Second.IsBlocked))
+                {
+                    if (line.RelatedLine.First.IsBlocked)
+                        changeFirst = false;
+                    if (line.RelatedLine.Second.IsBlocked)
+                        changeFirst = true;
+                }
+
                 Debug.WriteLine($"[P]Ordered: {line.Angle}, Set: {line.RelatedLine.Angle}");
 
                 if (changeFirst)
@@ -358,6 +376,13 @@ namespace PolygonEditor
 
         }
 
+        public bool IsAnyPointBlocked
+        {
+            get
+            {
+                return Points.Any(x => x.IsBlocked);
+            }
+        }
 
     }
 

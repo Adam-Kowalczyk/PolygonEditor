@@ -83,10 +83,13 @@ namespace PolygonEditor
                             {
                                 if (pnt.IsHit(x, y, 6))
                                 {
-                                    selectedPoint = pnt;
-                                    dragStartPoint = new Point(x, y);
-                                    vm.IsPointDragged = true;
-                                    return;
+                                    if (!pnt.IsBlocked)
+                                    {
+                                        selectedPoint = pnt;
+                                        dragStartPoint = new Point(x, y);
+                                        vm.IsPointDragged = true;
+                                        return;
+                                    }
                                 }
                             }
                         }
@@ -106,16 +109,19 @@ namespace PolygonEditor
                                 }
                                 else
                                 {
-                                    dragStartPoint = new Point(x, y);
-                                    selectedLine = line;
-                                    lineInitial = ( new DragablePoint(line.First.X, line.First.Y), new DragablePoint(line.Second.X, line.Second.Y));
-                                    vm.IsLineDragged = true;
-                                    return;
+                                    if (!(line.First.IsBlocked || line.Second.IsBlocked))
+                                    {
+                                        dragStartPoint = new Point(x, y);
+                                        selectedLine = line;
+                                        lineInitial = (new DragablePoint(line.First.X, line.First.Y), new DragablePoint(line.Second.X, line.Second.Y));
+                                        vm.IsLineDragged = true;
+                                        return;
+                                    }
                                 }
                             }
                         }
 
-                        if (!vm.IsAddingRelation)
+                        if (!vm.IsAddingRelation && !vm.SelectedPolygon.IsAnyPointBlocked)
                         {
                             dragStartPoint = new Point(x, y);
                             vm.IsMoving = true;
@@ -281,7 +287,15 @@ namespace PolygonEditor
                         deleteItem.Header = "Delete point";
                         deleteItem.Command = vm.DeletePointCommand;
                         deleteItem.CommandParameter = pnt;
+
                         ctxMenu.Items.Add(deleteItem);
+
+                        var blockPoint = new MenuItem();
+                        blockPoint.Header = "Change blocked/unblocked";
+                        blockPoint.Command = vm.ChangeBlockingStatusCommand;
+                        blockPoint.CommandParameter = pnt;
+
+                        ctxMenu.Items.Add(blockPoint);
                         ctxMenu.IsOpen = true;
                         return;
                     }

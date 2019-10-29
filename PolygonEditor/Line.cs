@@ -149,6 +149,14 @@ namespace PolygonEditor
             return PointsHelpers.DistanceToLine(First.X, First.Y,
                                         Second.X, Second.Y, x, y) <= margin;
         }
+
+        public bool IsAnyPointBlocked
+        {
+            get
+            {
+                return First.IsBlocked || Second.IsBlocked;
+            }
+        }
     }
 
     public enum Relation

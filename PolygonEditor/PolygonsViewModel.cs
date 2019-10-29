@@ -399,5 +399,23 @@ namespace PolygonEditor
             }
         }
         ICommand createPredefinedPolygonCommand;
+
+        public void ChangeBlockStatus(object arg)
+        {
+            var point = arg as DragablePoint;
+            if (point == null) return;
+            point.IsBlocked = !point.IsBlocked;
+            if (SelectedPolygon != null)
+                SelectedPolygon.RenderBitmap();
+        }
+
+        public ICommand ChangeBlockingStatusCommand
+        {
+            get
+            {
+                return changeBlockingStatusCommand ?? (changeBlockingStatusCommand = new CustomCommand((x) => ChangeBlockStatus(x)));
+            }
+        }
+        ICommand changeBlockingStatusCommand;
     }
 }
